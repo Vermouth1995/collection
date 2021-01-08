@@ -12,14 +12,16 @@ class LinkedListNode<E> {
 }
 
 export class LinkedList<E> implements List<E> {
-	constructor() {
+	constructor(isEqual: (left: E, right: E) => boolean) {
 		this.length = 0;
 		this.head = null;
 		this.tail = null;
+		this.isEqual = isEqual;
 	}
 	private length: number;
 	private head: LinkedListNode<E> | null;
 	private tail: LinkedListNode<E> | null;
+	private isEqual: (left: E, right: E) => boolean;
 
 	size(): number {
 		return this.length;
@@ -39,7 +41,7 @@ export class LinkedList<E> implements List<E> {
 			this.head = newEle;
 			this.tail = newEle;
 			this.length++;
-			return;
+			return true;
 		}
 		this.tail.next = newEle;
 		newEle.prev = this.tail;
@@ -57,10 +59,20 @@ export class LinkedList<E> implements List<E> {
 		return true;
 	}
 	contains(ele: E): boolean {
-		return;
+		let flag = false;
+		this.iterate((e) => {
+			if (this.isEqual(ele, e)) {
+				flag = true;
+			}
+		});
+		return flag;
 	}
 	containsAll(list: LinkedList<E>): boolean {
-		return;
+		let flag = false;
+		list.iterate((e) => {
+			flag = flag && this.contains(e);
+		});
+		return flag;
 	}
 	iterate(on: (ele: E) => void): void {
 		let current = this.head;
@@ -71,15 +83,217 @@ export class LinkedList<E> implements List<E> {
 		return;
 	}
 	remove(ele: E): boolean {
-		return;
+		let current = this.head;
+		let flag = false;
+		while (current !== null) {
+			if (this.isEqual(current.data, ele)) {
+				if (current.prev !== null) {
+					current.prev.next = current.next;
+				} else {
+					this.head = current.next;
+				}
+				if (current.next !== null) {
+					current.next.prev = current.prev;
+				} else {
+					this.tail = current.prev;
+				}
+				this.length--;
+				flag = true;
+			}
+			current = current.next;
+		}
+		return flag;
 	}
 	removeAll(list: LinkedList<E>): boolean {
-		return;
+		let flag = false;
+		list.iterate((e) => {
+			flag = flag || this.remove(e);
+		});
+		return flag;
 	}
 	removeIf(filter: (ele: E) => boolean): boolean {
-		return;
+		let flag = false;
+		// this.iterate((e) => {
+		// 	if (filter(e)) {
+		// 		flag = flag || this.remove(e);
+		// 	}
+		// });
+		let current = this.head;
+		while (current !== null) {
+			if (filter(current.data)) {
+				if (current.prev !== null) {
+					current.prev.next = current.next;
+				} else {
+					this.head = current.next;
+				}
+				if (current.next !== null) {
+					current.next.prev = current.prev;
+				} else {
+					this.tail = current.prev;
+				}
+				this.length--;
+				flag = flag || true;
+			}
+			current = current.next;
+		}
+		return flag;
 	}
 	retainAll(list: LinkedList<E>): boolean {
+		let flag = false;
+		// TODO:待优化
+		this.iterate((e) => {
+			if (!list.contains(e)) {
+				flag = flag || this.remove(e);
+			}
+		});
+		return flag;
+	}
+	set(index: number, ele: E): void {
+		if (index < 0 || index >= this.length) {
+			throw new Error('out of the boundary');
+		}
+		let current = this.head;
+		let position = 0;
+		while (current !== null) {
+			if (position === index) {
+				current.data = ele;
+			}
+			current = current.next;
+			position++;
+		}
 		return;
+	}
+	insert(index: number, ele: E): void {
+		if (index < 0 || index > this.length) {
+			throw new Error('out of the boundary');
+		}
+		if (index === this.length) {
+			this.add(ele);
+			return;
+		}
+		const newNode: LinkedListNode<E> = new LinkedListNode<E>(ele);
+		let current = this.head;
+		let position = 0;
+		while (current !== null && position !== index) {
+			current = current.next;
+			position++;
+		}
+		current.prev.next = newNode;
+		newNode.prev = current.prev;
+		current.prev = newNode;
+		newNode.next = current;
+		this.length++;
+		return;
+	}
+	insertAll(index: number, list: LinkedList<E>): boolean {
+		if (index < 0 || index > this.length) {
+			throw new Error('out of the boundary');
+		}
+		// TODO
+		return;
+	}
+	get(index: number): E {
+		if (index < 0 || index >= this.length) {
+			throw new Error('out of the boundary');
+		}
+		let current = this.head;
+		let position = 0;
+		while (current.next !== null && position !== index) {
+			current = current.next;
+			position++;
+		}
+		return current.data;
+	}
+	indexOf(ele: E): number {
+		let current = this.head;
+		let position = 0;
+		while (current !== null) {
+			if (this.isEqual(current.data, ele)) {
+				return position;
+			}
+			current = current.next;
+			position++;
+		}
+		return -1;
+	}
+	lastIndexOf(ele: E): number {
+		let current = this.tail;
+		let position = this.length - 1;
+		while (current !== null) {
+			if (this.isEqual(current.data, ele)) {
+				return position;
+			}
+			current = current.prev;
+			position--;
+		}
+		return -1;
+	}
+	iterateFrom(index: number, on: (ele: E) => void): void {
+		if (index < 0 || index >= this.length) {
+			throw new Error('out of the boundary');
+		}
+		let current = this.head;
+		let position = 0;
+		while (current !== null) {
+			if (position >= index) {
+				on(current.data);
+			}
+			current = current.next;
+			position++;
+		}
+		return;
+	}
+	removeIndex(index: number): E {
+		if (index < 0 || index >= this.length) {
+			throw new Error('out of the boundary');
+		}
+		let current = this.head;
+		let position = 0;
+		while (current !== null) {
+			if (position === index) {
+				if (current.prev !== null) {
+					current.prev.next = current.next;
+				} else {
+					this.head = current.next;
+				}
+				if (current.next !== null) {
+					current.next.prev = current.prev;
+				} else {
+					this.tail = current.prev;
+				}
+				this.length--;
+				return current.data;
+			}
+			current = current.next;
+			position++;
+		}
+	}
+	replaceAll(operator: (ele: E) => E): void {
+		let current = this.head;
+		while (current !== null) {
+			current.data = operator(current.data);
+			current = current.next;
+		}
+		return;
+	}
+	sort(compare: (left: E, right: E) => number): void {
+		// TODO
+		return;
+	}
+	subList(from: number, to: number): LinkedList<E> {
+		if (from > to || from < 0 || to >= this.length) {
+			throw new Error('out of the boundary');
+		}
+		const sub = new LinkedList(this.isEqual);
+		let current = this.head;
+		let position = 0;
+		while (current !== null) {
+			if (position >= from && position <= to) {
+				sub.add(current.data);
+			}
+			current = current.next;
+			position++;
+		}
+		return sub;
 	}
 }
