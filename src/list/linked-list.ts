@@ -1,4 +1,4 @@
-import { List } from './interface';
+import { List } from '../list';
 
 class LinkedListNode<E> {
 	constructor(data: E, next: LinkedListNode<E> | null = null, prev: LinkedListNode<E> | null = null) {
