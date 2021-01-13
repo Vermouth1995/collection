@@ -123,7 +123,6 @@ export class ArrayList<E> implements List<E> {
 		return flag;
 	}
 	retainAll(list: ArrayList<E>): boolean {
-		// TODO
 		let flag = false;
 		this.iterate((e) => {
 			if (!list.contains(e)) {
@@ -147,6 +146,9 @@ export class ArrayList<E> implements List<E> {
 			this.add(ele);
 			return;
 		}
+		if (this.length >= this.capacity) {
+			this.swell();
+		}
 		this.length += 1;
 		for (let i = this.length - 1; i > index; i--) {
 			this.set(i, this.get(i - 1));
@@ -158,18 +160,22 @@ export class ArrayList<E> implements List<E> {
 		if (index < 0 || index > this.length) {
 			throw new Error('out of the boundary');
 		}
-		if (list.length === 0) {
+		if (list.size() === 0) {
 			return false;
 		}
 		if (index === this.length) {
 			this.addAll(list);
 			return true;
 		}
-		this.length += list.length;
-		for (let i = this.length - 1; i > index; i--) {
-			this.set(i, this.get(i - list.length));
+		const total = this.length + list.size();
+		if (this.capacity <= total) {
+			this.swell(total);
 		}
-		for (let i = 0; i < list.length; i++) {
+		this.length += list.size();
+		for (let i = this.length - 1; i > index; i--) {
+			this.set(i, this.get(i - list.size()));
+		}
+		for (let i = 0; i < list.size(); i++) {
 			this.set(i + index, list.get(i));
 		}
 		return true;
@@ -246,7 +252,7 @@ export class ArrayList<E> implements List<E> {
 		if (from > to || from < 0 || to >= this.length) {
 			throw new Error('out of the boundary');
 		}
-		const sub = new ArrayList(this.isEqual);
+		const sub = new ArrayList(this.isEqual, this.capacity);
 		for (let i = from; i < to; i++) {
 			sub.add(this.get(i));
 		}
