@@ -30,7 +30,7 @@ export class ArrayList<E> implements List<E> {
 		this.capacity = Math.ceil((newCapacity ? newCapacity : this.capacity) * ArrayList.FACTOR);
 		const newList = new Array<E>(this.capacity);
 		for (let i = 0; i < this.length; i++) {
-			newList[i] = this.list[i];
+			newList[i] = this.get(i);
 		}
 		this.list = newList;
 	}
@@ -41,7 +41,7 @@ export class ArrayList<E> implements List<E> {
 		this.capacity = Math.ceil(newCapacity);
 		const newList = new Array<E>(this.capacity);
 		for (let i = 0; i < this.length; i++) {
-			newList[i] = this.list[i];
+			newList[i] = this.get(i);
 		}
 		this.list = newList;
 	}
@@ -57,8 +57,9 @@ export class ArrayList<E> implements List<E> {
 		if (list.isEmpty()) {
 			return false;
 		}
-		if (this.length >= this.capacity + list.size()) {
-			this.swell(this.capacity + list.size());
+		const total = this.length + list.size();
+		if (this.capacity <= total) {
+			this.swell(total);
 		}
 		list.iterate((ele) => {
 			this.add(ele);
@@ -68,7 +69,7 @@ export class ArrayList<E> implements List<E> {
 	contains(ele: E): boolean {
 		let flag = false;
 		for (let i = 0; i < this.length; i++) {
-			if (this.isEqual(ele, this.list[i])) {
+			if (this.isEqual(ele, this.get(i))) {
 				flag = true;
 				break;
 			}
@@ -84,7 +85,7 @@ export class ArrayList<E> implements List<E> {
 	}
 	iterate(on: (ele: E) => void): void {
 		for (let i = 0; i < this.length; i++) {
-			on(this.list[i]);
+			on(this.get(i));
 		}
 		return;
 	}
@@ -99,7 +100,7 @@ export class ArrayList<E> implements List<E> {
 				continue;
 			}
 			for (let i = pos; i < this.length - 1; i++) {
-				this.set(i, this.list[i + 1]);
+				this.set(i, this.get(i + 1));
 			}
 			this.length -= 1;
 		}
@@ -148,7 +149,7 @@ export class ArrayList<E> implements List<E> {
 		}
 		this.length += 1;
 		for (let i = this.length - 1; i > index; i--) {
-			this.set(i, this.list[i - 1]);
+			this.set(i, this.get(i - 1));
 		}
 		this.set(index, ele);
 		return;
@@ -166,7 +167,7 @@ export class ArrayList<E> implements List<E> {
 		}
 		this.length += list.length;
 		for (let i = this.length - 1; i > index; i--) {
-			this.set(i, this.list[i - list.length]);
+			this.set(i, this.get(i - list.length));
 		}
 		for (let i = 0; i < list.length; i++) {
 			this.set(i + index, list.get(i));
@@ -181,7 +182,7 @@ export class ArrayList<E> implements List<E> {
 	}
 	indexOf(ele: E): number {
 		for (let i = 0; i < this.length; i++) {
-			if (this.isEqual(this.list[i], ele)) {
+			if (this.isEqual(this.get(i), ele)) {
 				return i;
 			}
 		}
@@ -189,7 +190,7 @@ export class ArrayList<E> implements List<E> {
 	}
 	lastIndexOf(ele: E): number {
 		for (let i = this.length - 1; i >= 0; i--) {
-			if (this.isEqual(this.list[i], ele)) {
+			if (this.isEqual(this.get(i), ele)) {
 				return i;
 			}
 		}
@@ -200,7 +201,7 @@ export class ArrayList<E> implements List<E> {
 			throw new Error('out of the boundary');
 		}
 		for (let i = index; i < this.length; i++) {
-			on(this.list[i]);
+			on(this.get(i));
 		}
 		return;
 	}
@@ -208,28 +209,28 @@ export class ArrayList<E> implements List<E> {
 		if (index < 0 || index >= this.length) {
 			throw new Error('out of the boundary');
 		}
-		const ele = this.list[index];
+		const ele = this.get(index);
 		if (index === this.length - 1) {
 			this.length -= 1;
 			return ele;
 		}
 		for (let i = index; i < this.length - 1; i++) {
-			this.set(i, this.list[i + 1]);
+			this.set(i, this.get(i + 1));
 		}
 		this.length -= 1;
 		return ele;
 	}
 	replaceAll(operator: (ele: E) => E): void {
 		for (let i = 0; i < this.length; i++) {
-			this.set(i, operator(this.list[i]));
+			this.set(i, operator(this.get(i)));
 		}
 		return;
 	}
 	sort(compare: (left: E, right: E) => number): void {
 		for (let i = 1; i < this.length; i++) {
-			const ele = this.list[i];
+			const ele = this.get(i);
 			for (var j = i - 1; j >= 0; j--) {
-				const tmp = this.list[j];
+				const tmp = this.get(j);
 				const order = compare(tmp, ele);
 				if (order > 0) {
 					this.set(j + 1, tmp);
@@ -247,7 +248,7 @@ export class ArrayList<E> implements List<E> {
 		}
 		const sub = new ArrayList(this.isEqual);
 		for (let i = from; i < to; i++) {
-			sub.add(this.list[i]);
+			sub.add(this.get(i));
 		}
 		return sub;
 	}
