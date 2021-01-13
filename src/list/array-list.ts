@@ -32,12 +32,14 @@ export class ArrayList<E> implements List<E> {
 		return true;
 	}
 	contains(ele: E): boolean {
-		this.iterate((e) => {
-			if (this.isEqual(ele, e)) {
-				return true;
+		let flag = false;
+		for (let i = 0; i < this.size(); i++) {
+			if (this.isEqual(ele, this.list[i])) {
+				flag = true;
+				break;
 			}
-		});
-		return false;
+		}
+		return flag;
 	}
 	containsAll(list: ArrayList<E>): boolean {
 		let flag = false;
@@ -189,7 +191,19 @@ export class ArrayList<E> implements List<E> {
 		return;
 	}
 	sort(compare: (left: E, right: E) => number): void {
-		// TODO
+		for (let i = 1; i < this.size(); i++) {
+			const ele = this.get(i);
+			for (var j = i - 1; j >= 0; j--) {
+				const tmp = this.get(j);
+				const order = compare(tmp, ele);
+				if (order > 0) {
+					this.set(j + 1, tmp);
+				} else {
+					break;
+				}
+			}
+			this.set(j + 1, ele);
+		}
 		return;
 	}
 	subList(from: number, to: number): ArrayList<E> {

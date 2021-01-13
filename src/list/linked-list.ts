@@ -35,6 +35,12 @@ export class LinkedList<E> implements List<E> {
 		this.tail = null;
 		return;
 	}
+	private getHead(): LinkedListNode<E> | null {
+		return this.head;
+	}
+	private getTail(): LinkedListNode<E> | null {
+		return this.tail;
+	}
 	add(ele: E): boolean {
 		const newEle: LinkedListNode<E> = new LinkedListNode<E>(ele);
 		if (this.isEmpty()) {
@@ -60,11 +66,14 @@ export class LinkedList<E> implements List<E> {
 	}
 	contains(ele: E): boolean {
 		let flag = false;
-		this.iterate((e) => {
-			if (this.isEqual(ele, e)) {
+		let current = this.head;
+		while (current !== null) {
+			if (this.isEqual(ele, current.data)) {
 				flag = true;
+				break;
 			}
-		});
+			current = current.next;
+		}
 		return flag;
 	}
 	containsAll(list: LinkedList<E>): boolean {
@@ -113,11 +122,6 @@ export class LinkedList<E> implements List<E> {
 	}
 	removeIf(filter: (ele: E) => boolean): boolean {
 		let flag = false;
-		// this.iterate((e) => {
-		// 	if (filter(e)) {
-		// 		flag = flag || this.remove(e);
-		// 	}
-		// });
 		let current = this.head;
 		while (current !== null) {
 			if (filter(current.data)) {
@@ -140,7 +144,6 @@ export class LinkedList<E> implements List<E> {
 	}
 	retainAll(list: LinkedList<E>): boolean {
 		let flag = false;
-		// TODO:待优化
 		this.iterate((e) => {
 			if (!list.contains(e)) {
 				flag = flag || this.remove(e);
@@ -157,6 +160,7 @@ export class LinkedList<E> implements List<E> {
 		while (current !== null) {
 			if (position === index) {
 				current.data = ele;
+				break;
 			}
 			current = current.next;
 			position++;
@@ -172,6 +176,13 @@ export class LinkedList<E> implements List<E> {
 			return;
 		}
 		const newNode: LinkedListNode<E> = new LinkedListNode<E>(ele);
+		if (index === 0) {
+			newNode.next = this.head;
+			this.head.prev = newNode;
+			this.head = newNode;
+			this.length++;
+			return;
+		}
 		let current = this.head;
 		let position = 0;
 		while (current !== null && position !== index) {
@@ -189,8 +200,36 @@ export class LinkedList<E> implements List<E> {
 		if (index < 0 || index > this.length) {
 			throw new Error('out of the boundary');
 		}
-		// TODO
-		return;
+		if (list.size() === 0) {
+			return false;
+		}
+		if (index === this.size()) {
+			return this.addAll(list);
+		}
+		if (index === 0) {
+			list.getTail().next = this.head;
+			this.head.prev = list.getTail();
+			this.head = list.getHead();
+			this.length += list.size();
+			return true;
+		}
+		let position = 0;
+		let current = this.head;
+		while (current !== null) {
+			if (position !== index) {
+				continue;
+			}
+			if (position === index) {
+				current.prev.next = list.getHead();
+				list.getHead().prev = current.prev;
+				current.prev = list.getTail();
+				list.getTail().next = current;
+			}
+			current = current.next;
+			position++;
+		}
+		this.length += list.size();
+		return true;
 	}
 	get(index: number): E {
 		if (index < 0 || index >= this.length) {
@@ -198,7 +237,7 @@ export class LinkedList<E> implements List<E> {
 		}
 		let current = this.head;
 		let position = 0;
-		while (current.next !== null && position !== index) {
+		while (current !== null && position !== index) {
 			current = current.next;
 			position++;
 		}
@@ -288,7 +327,7 @@ export class LinkedList<E> implements List<E> {
 		let current = this.head;
 		let position = 0;
 		while (current !== null) {
-			if (position >= from && position <= to) {
+			if (position >= from && position < to) {
 				sub.add(current.data);
 			}
 			current = current.next;
