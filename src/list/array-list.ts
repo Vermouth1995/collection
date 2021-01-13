@@ -26,24 +26,21 @@ export class ArrayList<E> implements List<E> {
 		this.length = 0;
 		return;
 	}
-	private swell(newCapacity?: number) {
+	private swell(newCapacity?: number): void {
 		this.capacity = Math.ceil((newCapacity ? newCapacity : this.capacity) * ArrayList.FACTOR);
 		const newList = new Array<E>(this.capacity);
 		for (let i = 0; i < this.length; i++) {
-			newList[i] = this.get(i);
+			newList[i] = this.list[i];
 		}
 		this.list = newList;
+		return;
 	}
-	changeCapacity(newCapacity: number) {
+	changeCapacity(newCapacity: number): void {
 		if (newCapacity < this.length) {
 			throw new Error('capacity is too small');
 		}
-		this.capacity = Math.ceil(newCapacity);
-		const newList = new Array<E>(this.capacity);
-		for (let i = 0; i < this.length; i++) {
-			newList[i] = this.get(i);
-		}
-		this.list = newList;
+		this.swell(newCapacity);
+		return;
 	}
 	add(ele: E): boolean {
 		if (this.length >= this.capacity) {
@@ -51,7 +48,7 @@ export class ArrayList<E> implements List<E> {
 		}
 		this.list[this.length] = ele;
 		this.length++;
-		return;
+		return true;
 	}
 	addAll(list: ArrayList<E>): boolean {
 		if (list.isEmpty()) {
@@ -69,7 +66,7 @@ export class ArrayList<E> implements List<E> {
 	contains(ele: E): boolean {
 		let flag = false;
 		for (let i = 0; i < this.length; i++) {
-			if (this.isEqual(ele, this.get(i))) {
+			if (this.isEqual(ele, this.list[i])) {
 				flag = true;
 				break;
 			}
@@ -85,7 +82,7 @@ export class ArrayList<E> implements List<E> {
 	}
 	iterate(on: (ele: E) => void): void {
 		for (let i = 0; i < this.length; i++) {
-			on(this.get(i));
+			on(this.list[i]);
 		}
 		return;
 	}
@@ -100,7 +97,7 @@ export class ArrayList<E> implements List<E> {
 				continue;
 			}
 			for (let i = pos; i < this.length - 1; i++) {
-				this.set(i, this.get(i + 1));
+				this.set(i, this.list[i + 1]);
 			}
 			this.length -= 1;
 		}
@@ -151,7 +148,7 @@ export class ArrayList<E> implements List<E> {
 		}
 		this.length += 1;
 		for (let i = this.length - 1; i > index; i--) {
-			this.set(i, this.get(i - 1));
+			this.set(i, this.list[i - 1]);
 		}
 		this.set(index, ele);
 		return;
@@ -173,7 +170,7 @@ export class ArrayList<E> implements List<E> {
 		}
 		this.length += list.size();
 		for (let i = this.length - 1; i > index; i--) {
-			this.set(i, this.get(i - list.size()));
+			this.set(i, this.list[i - list.size()]);
 		}
 		for (let i = 0; i < list.size(); i++) {
 			this.set(i + index, list.get(i));
@@ -188,7 +185,7 @@ export class ArrayList<E> implements List<E> {
 	}
 	indexOf(ele: E): number {
 		for (let i = 0; i < this.length; i++) {
-			if (this.isEqual(this.get(i), ele)) {
+			if (this.isEqual(this.list[i], ele)) {
 				return i;
 			}
 		}
@@ -196,7 +193,7 @@ export class ArrayList<E> implements List<E> {
 	}
 	lastIndexOf(ele: E): number {
 		for (let i = this.length - 1; i >= 0; i--) {
-			if (this.isEqual(this.get(i), ele)) {
+			if (this.isEqual(this.list[i], ele)) {
 				return i;
 			}
 		}
@@ -207,7 +204,7 @@ export class ArrayList<E> implements List<E> {
 			throw new Error('out of the boundary');
 		}
 		for (let i = index; i < this.length; i++) {
-			on(this.get(i));
+			on(this.list[i]);
 		}
 		return;
 	}
@@ -215,28 +212,28 @@ export class ArrayList<E> implements List<E> {
 		if (index < 0 || index >= this.length) {
 			throw new Error('out of the boundary');
 		}
-		const ele = this.get(index);
+		const ele = this.list[index];
 		if (index === this.length - 1) {
 			this.length -= 1;
 			return ele;
 		}
 		for (let i = index; i < this.length - 1; i++) {
-			this.set(i, this.get(i + 1));
+			this.set(i, this.list[i + 1]);
 		}
 		this.length -= 1;
 		return ele;
 	}
 	replaceAll(operator: (ele: E) => E): void {
 		for (let i = 0; i < this.length; i++) {
-			this.set(i, operator(this.get(i)));
+			this.set(i, operator(this.list[i]));
 		}
 		return;
 	}
 	sort(compare: (left: E, right: E) => number): void {
 		for (let i = 1; i < this.length; i++) {
-			const ele = this.get(i);
+			const ele = this.list[i];
 			for (var j = i - 1; j >= 0; j--) {
-				const tmp = this.get(j);
+				const tmp = this.list[j];
 				const order = compare(tmp, ele);
 				if (order > 0) {
 					this.set(j + 1, tmp);
@@ -254,7 +251,7 @@ export class ArrayList<E> implements List<E> {
 		}
 		const sub = new ArrayList(this.isEqual, this.capacity);
 		for (let i = from; i < to; i++) {
-			sub.add(this.get(i));
+			sub.add(this.list[i]);
 		}
 		return sub;
 	}
