@@ -78,7 +78,7 @@ export class ArrayList<E> implements List<E> {
 		return flag;
 	}
 	containsAll(list: Collection<E>): boolean {
-		return !list.iterate((e) => this.contains(e));
+		return !list.iterate((e) => !this.contains(e));
 	}
 	iterate(on: (e: E) => boolean): boolean {
 		let flag = false;
