@@ -79,16 +79,20 @@ lastIndexOf(e: E): number
 ---
 
 ```typescript
-iterateFrom(index: number, on: (e: E) => void): void
+iterateFrom(index: number, on: (e: E) => boolean): boolean
 ```
 
-从指定索引处遍历所有元素。
+从指定索引处遍历元素直到找到目标元素或全部元素均非目标元素。
 
 > `index` - 要获取的位置
 >
 > `on` - 处理每个元素的函数
 >
 > > `e` - 要处理的元素
+> >
+> > `return` - 该元素是否为目标元素(若是则停止遍历)
+>
+> `return` - 是否在遍历中找到了目标元素
 
 ---
 
