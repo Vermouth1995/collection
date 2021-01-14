@@ -1,4 +1,5 @@
 import { List } from '../list';
+import { Collection } from '../collection';
 
 class LinkedListNode<E> {
 	constructor(data: E, next: LinkedListNode<E> | null = null, prev: LinkedListNode<E> | null = null) {
@@ -35,12 +36,6 @@ export class LinkedList<E> implements List<E> {
 		this.tail = null;
 		return;
 	}
-	private getHead(): LinkedListNode<E> | null {
-		return this.head;
-	}
-	private getTail(): LinkedListNode<E> | null {
-		return this.tail;
-	}
 	add(ele: E): boolean {
 		const newEle: LinkedListNode<E> = new LinkedListNode<E>(ele);
 		if (this.isEmpty()) {
@@ -55,7 +50,7 @@ export class LinkedList<E> implements List<E> {
 		this.length++;
 		return true;
 	}
-	addAll(list: LinkedList<E>): boolean {
+	addAll(list: Collection<E>): boolean {
 		if (list.isEmpty()) {
 			return false;
 		}
@@ -76,9 +71,10 @@ export class LinkedList<E> implements List<E> {
 		}
 		return flag;
 	}
-	containsAll(list: LinkedList<E>): boolean {
+	containsAll(list: Collection<E>): boolean {
 		let flag = false;
 		list.iterate((e) => {
+			// bug
 			flag = flag && this.contains(e);
 		});
 		return flag;
@@ -113,7 +109,7 @@ export class LinkedList<E> implements List<E> {
 		}
 		return flag;
 	}
-	removeAll(list: LinkedList<E>): boolean {
+	removeAll(list: Collection<E>): boolean {
 		let flag = false;
 		list.iterate((e) => {
 			flag = flag || this.remove(e);
@@ -142,7 +138,7 @@ export class LinkedList<E> implements List<E> {
 		}
 		return flag;
 	}
-	retainAll(list: LinkedList<E>): boolean {
+	retainAll(list: Collection<E>): boolean {
 		let flag = false;
 		this.iterate((e) => {
 			if (!list.contains(e)) {
@@ -196,7 +192,7 @@ export class LinkedList<E> implements List<E> {
 		this.length++;
 		return;
 	}
-	insertAll(index: number, list: LinkedList<E>): boolean {
+	insertAll(index: number, list: Collection<E>): boolean {
 		if (index < 0 || index > this.length) {
 			throw new Error('out of the boundary');
 		}
@@ -206,29 +202,11 @@ export class LinkedList<E> implements List<E> {
 		if (index === this.size()) {
 			return this.addAll(list);
 		}
-		if (index === 0) {
-			list.getTail().next = this.head;
-			this.head.prev = list.getTail();
-			this.head = list.getHead();
-			this.length += list.size();
-			return true;
-		}
-		let position = 0;
-		let current = this.head;
-		while (current !== null) {
-			if (position !== index) {
-				continue;
-			}
-			if (position === index) {
-				current.prev.next = list.getHead();
-				list.getHead().prev = current.prev;
-				current.prev = list.getTail();
-				list.getTail().next = current;
-			}
-			current = current.next;
-			position++;
-		}
-		this.length += list.size();
+		let i = index;
+		list.iterate((ele) => {
+			this.insert(i, ele);
+			i++;
+		});
 		return true;
 	}
 	get(index: number): E {

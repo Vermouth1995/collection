@@ -1,4 +1,5 @@
 import { List } from '../list';
+import { Collection } from '../collection';
 
 export class ArrayList<E> implements List<E> {
 	constructor(isEqual: (left: E, right: E) => boolean, capacity?: number) {
@@ -50,7 +51,7 @@ export class ArrayList<E> implements List<E> {
 		this.length++;
 		return true;
 	}
-	addAll(list: ArrayList<E>): boolean {
+	addAll(list: Collection<E>): boolean {
 		if (list.isEmpty()) {
 			return false;
 		}
@@ -73,9 +74,10 @@ export class ArrayList<E> implements List<E> {
 		}
 		return flag;
 	}
-	containsAll(list: ArrayList<E>): boolean {
+	containsAll(list: Collection<E>): boolean {
 		let flag = false;
 		list.iterate((e) => {
+			// bug
 			flag = flag && this.contains(e);
 		});
 		return flag;
@@ -87,23 +89,24 @@ export class ArrayList<E> implements List<E> {
 		return;
 	}
 	remove(ele: E): boolean {
-		if (this.indexOf(ele) === -1) {
+		let position = this.indexOf(ele);
+		if (position === -1) {
 			return false;
 		}
-		while (this.indexOf(ele) !== -1) {
-			let pos = this.indexOf(ele);
-			if (pos === this.length - 1) {
+		while (position !== -1) {
+			if (position === this.length - 1) {
 				this.length -= 1;
 				continue;
 			}
-			for (let i = pos; i < this.length - 1; i++) {
+			for (let i = position; i < this.length - 1; i++) {
 				this.set(i, this.list[i + 1]);
 			}
 			this.length -= 1;
+			position = this.indexOf(ele);
 		}
 		return true;
 	}
-	removeAll(list: ArrayList<E>): boolean {
+	removeAll(list: Collection<E>): boolean {
 		let flag = false;
 		list.iterate((e) => {
 			flag = flag || this.remove(e);
@@ -119,7 +122,7 @@ export class ArrayList<E> implements List<E> {
 		});
 		return flag;
 	}
-	retainAll(list: ArrayList<E>): boolean {
+	retainAll(list: Collection<E>): boolean {
 		let flag = false;
 		this.iterate((e) => {
 			if (!list.contains(e)) {
@@ -153,7 +156,7 @@ export class ArrayList<E> implements List<E> {
 		this.set(index, ele);
 		return;
 	}
-	insertAll(index: number, list: ArrayList<E>): boolean {
+	insertAll(index: number, list: Collection<E>): boolean {
 		if (index < 0 || index > this.length) {
 			throw new Error('out of the boundary');
 		}
@@ -172,9 +175,11 @@ export class ArrayList<E> implements List<E> {
 		for (let i = this.length - 1; i > index; i--) {
 			this.set(i, this.list[i - list.size()]);
 		}
-		for (let i = 0; i < list.size(); i++) {
-			this.set(i + index, list.get(i));
-		}
+		let i = 0;
+		list.iterate((ele) => {
+			this.set(i + index, ele);
+			i++;
+		});
 		return true;
 	}
 	get(index: number): E {
@@ -249,7 +254,7 @@ export class ArrayList<E> implements List<E> {
 		if (from > to || from < 0 || to >= this.length) {
 			throw new Error('out of the boundary');
 		}
-		const sub = new ArrayList(this.isEqual, this.capacity);
+		const sub = new ArrayList(this.isEqual, (to - from) * ArrayList.FACTOR);
 		for (let i = from; i < to; i++) {
 			sub.add(this.list[i]);
 		}
