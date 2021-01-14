@@ -58,6 +58,7 @@ export class LinkedList<E> implements List<E> {
 		}
 		list.iterate((ele) => {
 			this.add(ele);
+			return false;
 		});
 		return true;
 	}
@@ -74,21 +75,20 @@ export class LinkedList<E> implements List<E> {
 		return flag;
 	}
 	containsAll(list: Collection<E>): boolean {
-		let flag = true;
-		list.iterate((e) => {
-			if (!this.contains(e)) {
-				flag = false;
-			}
-		});
-		return flag;
+		return !list.iterate((e) => this.contains(e));
 	}
-	iterate(on: (ele: E) => void): void {
+	iterate(on: (e: E) => boolean): boolean {
+		let flag = false;
 		let current = this.head;
 		while (current !== null) {
-			on(current.data);
+			const res = on(current.data);
+			if (res) {
+				flag = true;
+				break;
+			}
 			current = current.next;
 		}
-		return;
+		return flag;
 	}
 	remove(ele: E): boolean {
 		let current = this.head;
@@ -116,6 +116,7 @@ export class LinkedList<E> implements List<E> {
 		let flag = false;
 		list.iterate((e) => {
 			flag = flag || this.remove(e);
+			return false;
 		});
 		return flag;
 	}
@@ -147,6 +148,7 @@ export class LinkedList<E> implements List<E> {
 			if (!list.contains(e)) {
 				flag = flag || this.remove(e);
 			}
+			return false;
 		});
 		return flag;
 	}
@@ -209,6 +211,7 @@ export class LinkedList<E> implements List<E> {
 		list.iterate((ele) => {
 			this.insert(i, ele);
 			i++;
+			return false;
 		});
 		return true;
 	}
