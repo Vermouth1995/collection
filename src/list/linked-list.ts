@@ -13,16 +13,18 @@ class LinkedListNode<E> {
 }
 
 export class LinkedList<E> implements List<E> {
-	constructor(isEqual: (left: E, right: E) => boolean) {
+	constructor(isEqual?: (left: E, right: E) => boolean) {
+		if (isEqual) {
+			this.isEqual = isEqual;
+		}
 		this.length = 0;
 		this.head = null;
 		this.tail = null;
-		this.isEqual = isEqual;
 	}
 	private length: number;
 	private head: LinkedListNode<E> | null;
 	private tail: LinkedListNode<E> | null;
-	private isEqual: (left: E, right: E) => boolean;
+	private isEqual: (left: E, right: E) => boolean = (left: E, right: E) => left === right;
 
 	size(): number {
 		return this.length;

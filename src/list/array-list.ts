@@ -2,16 +2,18 @@ import { List } from '../list';
 import { Collection } from '../collection';
 
 export class ArrayList<E> implements List<E> {
-	constructor(isEqual: (left: E, right: E) => boolean, capacity?: number) {
+	constructor(isEqual?: (left: E, right: E) => boolean, capacity?: number) {
+		if (isEqual) {
+			this.isEqual = isEqual;
+		}
 		if (capacity) {
 			this.capacity = capacity;
 		}
 		this.list = new Array<E>(this.capacity);
-		this.isEqual = isEqual;
 		this.length = 0;
 	}
 	private list: E[];
-	private isEqual: (left: E, right: E) => boolean;
+	private isEqual: (left: E, right: E) => boolean = (left: E, right: E) => left === right;
 	private length: number; // 实际长度
 	private capacity: number = 10; // 数组容量
 	private static readonly FACTOR: number = 1.5; // 扩容系数
@@ -236,18 +238,53 @@ export class ArrayList<E> implements List<E> {
 		return;
 	}
 	sort(compare: (left: E, right: E) => number): void {
-		for (let i = 1; i < this.length; i++) {
-			const ele = this.list[i];
-			for (var j = i - 1; j >= 0; j--) {
-				const tmp = this.list[j];
-				const order = compare(tmp, ele);
-				if (order > 0) {
-					this.set(j + 1, tmp);
-				} else {
-					break;
+		// insert sort
+		const insertSort = () => {
+			for (let i = 1; i < this.length; i++) {
+				const ele = this.list[i];
+				for (var j = i - 1; j >= 0; j--) {
+					const tmp = this.list[j];
+					const order = compare(tmp, ele);
+					if (order > 0) {
+						this.set(j + 1, tmp);
+					} else {
+						break;
+					}
 				}
+				this.set(j + 1, ele);
 			}
-			this.set(j + 1, ele);
+		};
+		// quick sort(in-place)
+		const quickSort = (from: number, to: number) => {
+			if (from >= to) {
+				return;
+			}
+			const partition = (from: number, to: number) => {
+				const pivot = this.list[from];
+				let i = from + 1;
+				for (let j = i; j <= to; j++) {
+					const order = compare(this.list[j], pivot);
+					if (order < 0) {
+						const temp = this.list[i];
+						this.list[i] = this.list[j];
+						this.list[j] = temp;
+						i++;
+					}
+				}
+				const temp = this.list[i - 1];
+				this.list[i - 1] = this.list[from];
+				this.list[from] = temp;
+				return i - 1;
+			};
+			const pivot = partition(from, to);
+			quickSort(from, pivot - 1);
+			quickSort(pivot + 1, to);
+		};
+
+		if (this.length <= 10) {
+			insertSort();
+		} else {
+			quickSort(0, this.length - 1);
 		}
 		return;
 	}
