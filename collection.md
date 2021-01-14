@@ -70,21 +70,25 @@ contains(e: E): boolean
 containsAll(c: Collection<E>): boolean
 ```
 
-将指定集合中的所有元素添加到此集合，返回此集合是否改变。
+查看此集合是否包含指定集合的所有元素。
 
 > `c` - 要判断的元素的集合
 
 ---
 
 ```typescript
-iterate(on: (e: E) => void): void
+iterate(on: (e: E) => boolean): boolean
 ```
 
-遍历所有元素。
+遍历元素直到找到目标元素或全部元素均非目标元素。
 
 > `on` - 处理每个元素的函数
 >
 > > `e` - 要处理的元素
+> >
+> > `return` - 该元素是否为目标元素(若是则停止遍历)
+>
+> `return` - 是否在遍历中找到了目标元素
 
 ---
 
