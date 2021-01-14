@@ -72,10 +72,11 @@ export class LinkedList<E> implements List<E> {
 		return flag;
 	}
 	containsAll(list: Collection<E>): boolean {
-		let flag = false;
+		let flag = true;
 		list.iterate((e) => {
-			// bug
-			flag = flag && this.contains(e);
+			if (!this.contains(e)) {
+				flag = false;
+			}
 		});
 		return flag;
 	}
