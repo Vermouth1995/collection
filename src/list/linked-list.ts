@@ -81,9 +81,8 @@ export class LinkedList<E> implements List<E> {
 		let flag = false;
 		let current = this.head;
 		while (current !== null) {
-			const res = on(current.data);
-			if (res) {
-				flag = true;
+			flag = on(current.data);
+			if (flag) {
 				break;
 			}
 			current = current.next;
@@ -251,20 +250,24 @@ export class LinkedList<E> implements List<E> {
 		}
 		return -1;
 	}
-	iterateFrom(index: number, on: (ele: E) => void): void {
+	iterateFrom(index: number, on: (ele: E) => boolean): boolean {
 		if (index < 0 || index >= this.length) {
 			throw new Error('out of the boundary');
 		}
+		let flag = false;
 		let current = this.head;
 		let position = 0;
 		while (current !== null) {
 			if (position >= index) {
-				on(current.data);
+				flag = on(current.data);
+				if (flag) {
+					break;
+				}
 			}
 			current = current.next;
 			position++;
 		}
-		return;
+		return flag;
 	}
 	removeIndex(index: number): E {
 		if (index < 0 || index >= this.length) {

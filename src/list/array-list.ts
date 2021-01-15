@@ -83,9 +83,8 @@ export class ArrayList<E> implements List<E> {
 	iterate(on: (e: E) => boolean): boolean {
 		let flag = false;
 		for (let i = 0; i < this.length; i++) {
-			const res = on(this.list[i]);
-			if (res) {
-				flag = true;
+			flag = on(this.list[i]);
+			if (flag) {
 				break;
 			}
 		}
@@ -211,14 +210,18 @@ export class ArrayList<E> implements List<E> {
 		}
 		return -1;
 	}
-	iterateFrom(index: number, on: (ele: E) => void): void {
+	iterateFrom(index: number, on: (ele: E) => boolean): boolean {
 		if (index < 0 || index >= this.length) {
 			throw new Error('out of the boundary');
 		}
+		let flag = false;
 		for (let i = index; i < this.length; i++) {
-			on(this.list[i]);
+			flag = on(this.list[i]);
+			if (flag) {
+				break;
+			}
 		}
-		return;
+		return flag;
 	}
 	removeIndex(index: number): E {
 		if (index < 0 || index >= this.length) {
