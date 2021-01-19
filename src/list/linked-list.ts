@@ -311,6 +311,9 @@ export class LinkedList<E> implements List<E> {
 		}
 		return slow;
 	}
+	private sortedMerge(left: LinkedListNode<E>, right: LinkedListNode<E>, compare: (left: E, right: E) => number) {
+		return left;
+	}
 	sort(compare: (left: E, right: E) => number): void {
 		// TODO
 		return;
