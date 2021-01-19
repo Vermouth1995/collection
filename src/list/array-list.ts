@@ -272,15 +272,11 @@ export class ArrayList<E> implements List<E> {
 				for (let j = i; j <= to; j++) {
 					const order = compare(this.list[j], pivot);
 					if (order < 0) {
-						const temp = this.list[i];
-						this.list[i] = this.list[j];
-						this.list[j] = temp;
+						[this.list[i], this.list[j]] = [this.list[j], this.list[i]];
 						i++;
 					}
 				}
-				const temp = this.list[i - 1];
-				this.list[i - 1] = this.list[from];
-				this.list[from] = temp;
+				[this.list[i - 1], this.list[from]] = [this.list[from], this.list[i - 1]];
 				return i - 1;
 			};
 			const pivot = partition(from, to);

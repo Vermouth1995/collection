@@ -302,6 +302,15 @@ export class LinkedList<E> implements List<E> {
 		}
 		return;
 	}
+	private getMiddleNode(head: LinkedListNode<E>) {
+		let quick = head;
+		let slow = head;
+		while (quick !== null && quick.next !== null) {
+			quick = quick.next.next;
+			slow = slow.next;
+		}
+		return slow;
+	}
 	sort(compare: (left: E, right: E) => number): void {
 		// TODO
 		return;
