@@ -1,5 +1,6 @@
 import { List } from '../list';
 import { Collection } from '../collection';
+import { ArrayList } from './array-list';
 
 class LinkedListNode<E> {
 	constructor(data: E, next: LinkedListNode<E> | null = null, prev: LinkedListNode<E> | null = null) {
@@ -302,21 +303,15 @@ export class LinkedList<E> implements List<E> {
 		}
 		return;
 	}
-	private getMiddleNode(head: LinkedListNode<E>) {
-		let quick = head;
-		let slow = head;
-		while (quick !== null && quick.next !== null) {
-			quick = quick.next.next;
-			slow = slow.next;
-		}
-		return slow;
-	}
-	private sortedMerge(left: LinkedListNode<E>, right: LinkedListNode<E>, compare: (left: E, right: E) => number) {
-		return left;
-	}
 	sort(compare: (left: E, right: E) => number): void {
-		// TODO
-		return;
+		if (this.isEmpty() || this.head.next === null) {
+			return;
+		}
+		const array = new ArrayList(this.isEqual);
+		this.iterate((ele) => array.add(ele));
+		array.sort(compare);
+		this.clear();
+		this.addAll(array);
 	}
 	subList(from: number, to: number): LinkedList<E> {
 		if (from > to || from < 0 || to >= this.length) {
